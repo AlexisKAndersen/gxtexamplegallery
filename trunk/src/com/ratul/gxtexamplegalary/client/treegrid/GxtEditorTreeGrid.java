@@ -8,6 +8,8 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -18,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.ratul.gxtexamplegalary.client.TestData;
 import com.ratul.gxtexamplegalary.client.icons.ExampleIcons;
@@ -44,10 +47,15 @@ public class GxtEditorTreeGrid extends LayoutContainer {
 		name.setEditor(new CellEditor(text));
 
 		ColumnConfig salary = new ColumnConfig("salary", "Salary", 100);
-		salary.setEditor(new CellEditor(new TextField<String>()));
+		salary.setEditor(new CellEditor(new NumberField()));
 
-		 ColumnConfig date = new ColumnConfig("joiningdate", "Joining Date", 100); 
-		date.setEditor(new CellEditor(new TextField<String>()));
+		DateField dateField = new DateField();  
+	    dateField.getPropertyEditor().setFormat(DateTimeFormat.getFormat("MM/dd/y"));
+	    
+		ColumnConfig date = new ColumnConfig("joiningdate", "Joining Date", 100); 
+		date.setAlignment(HorizontalAlignment.RIGHT);
+		date.setEditor(new CellEditor(dateField));  
+		date.setDateTimeFormat(DateTimeFormat.getMediumDateFormat());
 
 		ColumnModel cm = new ColumnModel(Arrays.asList(name, salary, date));
 
@@ -63,7 +71,6 @@ public class GxtEditorTreeGrid extends LayoutContainer {
 				cm);
 		tree.setClicksToEdit(ClicksToEdit.TWO);
 		tree.setBorders(true);
-		tree.getStyle().setLeafIcon(IconHelper.createStyle("icon-music"));
 		tree.setSize(400, 400);
 		tree.setAutoExpandColumn("name");
 		tree.setTrackMouseOver(false);
