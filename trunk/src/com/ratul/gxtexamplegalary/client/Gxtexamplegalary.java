@@ -292,6 +292,7 @@ public class Gxtexamplegalary implements EntryPoint {
 		win.setWidth(720);
 		win.setHeight(350);
 		win.add(new SortingGrid());
+		//should change later
 		return win;
 	}
 
