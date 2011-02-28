@@ -13,10 +13,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.ratul.gxtexamplegalary.client.chart.SimpleChart;
 import com.ratul.gxtexamplegalary.client.grid.GxtEditableGrid;
 import com.ratul.gxtexamplegalary.client.grid.GxtGridGrouping;
 import com.ratul.gxtexamplegalary.client.grid.GxtPagingExample;
-import com.ratul.gxtexamplegalary.client.grid.SortingGrid;
 import com.ratul.gxtexamplegalary.client.tree.GxtBasicTree;
 import com.ratul.gxtexamplegalary.client.tree.GxtContextMenuTree;
 import com.ratul.gxtexamplegalary.client.tree.GxtFilterTree;
@@ -291,7 +291,7 @@ public class Gxtexamplegalary implements EntryPoint {
 		win.setHeading("Basic Grid Example");
 		win.setWidth(720);
 		win.setHeight(350);
-		win.add(new SortingGrid());
+		win.add(new SimpleChart());
 		//should change later
 		return win;
 	}
