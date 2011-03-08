@@ -93,7 +93,7 @@ public class GxtPagingExample extends LayoutContainer {
 
 		ContentPanel cp = new ContentPanel();
 		cp.setBodyBorder(false);
-		cp.setHeading("Grid with Pagination");
+		cp.setHeaderVisible(false);
 		cp.setButtonAlign(HorizontalAlignment.CENTER);
 		cp.setLayout(new FitLayout());
 		cp.setSize(700, 300);

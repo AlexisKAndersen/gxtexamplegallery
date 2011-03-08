@@ -121,7 +121,7 @@ public class GxtEditableGrid extends LayoutContainer {
 
 		ContentPanel cp = new ContentPanel();
 		cp.setBodyBorder(false);
-		cp.setHeading("Editable Grid");
+		cp.setHeaderVisible(false);
 		cp.setButtonAlign(HorizontalAlignment.CENTER);
 		cp.setLayout(new FitLayout());
 		cp.setSize(700, 300);

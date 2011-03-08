@@ -15,4 +15,7 @@ public interface GreetingServiceAsync {
 
 	void postComment(String comment, String postedBy,
 			AsyncCallback<Void> callback);
+
+	void saveSubscribedUser(String name, String email,
+			AsyncCallback<Void> callback);
 }

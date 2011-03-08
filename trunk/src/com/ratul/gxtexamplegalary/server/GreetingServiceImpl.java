@@ -9,8 +9,10 @@ import javax.jdo.PersistenceManager;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.ratul.gxtexamplegalary.client.GreetingService;
 import com.ratul.gxtexamplegalary.client.model.CommentModel;
+import com.ratul.gxtexamplegalary.client.util.ClientException;
 import com.ratul.gxtexamplegalary.server.converter.CommentConverter;
 import com.ratul.gxtexamplegalary.server.entity.Comments;
+import com.ratul.gxtexamplegalary.server.entity.SubscribedUsers;
 
 /**
  * The server side implementation of the RPC service.
@@ -49,14 +51,69 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public void postComment(String comment, String postedBy) {
+	public void postComment(String comment, String postedBy) throws ClientException
+	{
 		Comments comments = new Comments(comment, postedBy, new Date());
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
 			pm.makePersistent(comments);
-		} finally {
+			sendMailToUser(comments);
+		}
+		catch(Exception ex)
+		{
+			throw new ClientException(ex.getLocalizedMessage());
+		}
+		finally {
 			pm.close();
 		}
 		
+	}
+
+	@Override
+	public void saveSubscribedUser(String name, String email)throws ClientException 
+	{
+		SubscribedUsers user = new SubscribedUsers(name, email);
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			pm.makePersistent(user);
+		} 
+		catch(Exception ex)
+		{
+			throw new ClientException(ex.getLocalizedMessage());
+		}
+		finally 
+		{
+			pm.close();
+		}
+	}
+	
+	private void sendMailToUser(Comments comment) throws Exception
+	{
+		try
+		{
+			String[] receivers;
+			PersistenceManager pm = PMF.get().getPersistenceManager();	
+			String query = "select from " + SubscribedUsers.class.getName();
+			List<SubscribedUsers> userList = (List<SubscribedUsers>) pm.newQuery(query).execute();
+			if(!userList.isEmpty())
+			{
+				receivers = new String[userList.size()];
+				for(int i=0; i<userList.size(); i++)
+				{
+					receivers[i] = userList.get(i).getUserEmail();
+				}
+				String table = "A new comments is posted<br><br><table>";
+				table += "<tr><td>Posted By:</td><td>" + comment.getPostedBy() + "</td></tr>";
+		        table += "<tr><td>Date:</td><td>" + comment.getPostedDate() + "</td></tr>";
+		        table += "<tr><td>Comments:</td><td>" + comment.getComments() + "</td></tr>";
+		        table += "</table>";
+		        MailUtility.sendMail(table, "[gxtexamplegallery.appspot.com] A New Comment is posted at "+comment.getPostedDate(), receivers);
+			}
+			
+		}
+		catch(Exception ex)
+		{
+			throw ex;
+		}
 	}
 }

@@ -89,7 +89,7 @@ public class GxtGridGrouping extends LayoutContainer {
 	     	     
 	     ContentPanel cp = new ContentPanel();  
 	     cp.setBodyBorder(false);  
-	     cp.setHeading("Grid with Grouping");  
+	     cp.setHeaderVisible(false);
 	     cp.setButtonAlign(HorizontalAlignment.CENTER);  
 	     cp.setLayout(new FitLayout());  
 	     cp.setSize(700, 420); 
