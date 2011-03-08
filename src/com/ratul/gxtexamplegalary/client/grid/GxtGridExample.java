@@ -76,7 +76,7 @@ public class GxtGridExample extends LayoutContainer {
 	     
 	     ContentPanel cp = new ContentPanel();  
 	     cp.setBodyBorder(false);  
-	     cp.setHeading("Basic Grid");  
+	     cp.setHeaderVisible(false);
 	     cp.setButtonAlign(HorizontalAlignment.CENTER);  
 	     cp.setLayout(new FitLayout());  
 	     cp.setSize(700, 300);  

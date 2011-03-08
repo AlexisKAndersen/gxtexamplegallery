@@ -2,6 +2,9 @@ package com.ratul.gxtexamplegalary.client;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Info;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -15,8 +18,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.ratul.gxtexamplegalary.client.chart.SimpleChart;
 import com.ratul.gxtexamplegalary.client.grid.GxtEditableGrid;
+import com.ratul.gxtexamplegalary.client.grid.GxtGridExample;
 import com.ratul.gxtexamplegalary.client.grid.GxtGridGrouping;
 import com.ratul.gxtexamplegalary.client.grid.GxtPagingExample;
+import com.ratul.gxtexamplegalary.client.grid.SortingGrid;
+import com.ratul.gxtexamplegalary.client.misc.BasicDnD;
+import com.ratul.gxtexamplegalary.client.misc.ListViewXTemplate;
 import com.ratul.gxtexamplegalary.client.tree.GxtBasicTree;
 import com.ratul.gxtexamplegalary.client.tree.GxtContextMenuTree;
 import com.ratul.gxtexamplegalary.client.tree.GxtFilterTree;
@@ -30,41 +37,43 @@ import com.ratul.gxtexamplegalary.client.treegrid.GxtRowNumberTreeGrid;
  */
 public class Gxtexamplegalary implements EntryPoint {
 
-	public static final GreetingServiceAsync greetingService = GWT
-			.create(GreetingService.class);
+//	public static final GreetingServiceAsync greetingService = GWT
+//			.create(GreetingService.class);
 
-	public void onModuleLoad() {
+	public void onModuleLoad() 
+	{
+		busyStaus = new Status();
 		final TextArea txaInput = new TextArea();
 		final TextField<String> txtPostedBy = new TextField<String>();
-		txaInput.setWidth(500);
+		txaInput.setWidth(200);
 		txtPostedBy.setWidth(200);
 		txtPostedBy.setEmptyText("Your Name...");
 		txtPostedBy.setTitle("Write your name here");
 		txaInput.setTitle("Write your comments here");
 		txaInput.setEmptyText("Write your comments here...");
 		Button button = new Button("Post Comment");
-		final Label label = new Label();
-		label.setStylePrimaryName("label_success");
+		
 		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
-			public void componentSelected(ButtonEvent ce) {
+			public void componentSelected(ButtonEvent ce) 
+			{
+				busyStaus.setBusy("");
 				if (!txtPostedBy.getRawValue().equals("") && !txaInput.getRawValue().equals("")) {
-					greetingService.postComment(txaInput.getRawValue(),txtPostedBy.getRawValue(),
+					GreetingService.Util.getInstance().postComment(txaInput.getRawValue(),txtPostedBy.getRawValue(),
 							new AsyncCallback<Void>() {
 
 								@Override
 								public void onFailure(Throwable caught) {
-									label.setText("failure");
-
+									Info.display("Failure:(","Comment is not posted.");
+									busyStaus.clearStatus("");
 								}
 
 								@Override
 								public void onSuccess(Void result) {
-									label
-											.setText("Comment is posted successfully!");
+									Info.display("Success:)","Comment is posted successfully.");
 									txaInput.setValue("");
 									txtPostedBy.setValue("");
-							
+									busyStaus.clearStatus("");
 								}
 							});
 
@@ -75,16 +84,17 @@ public class Gxtexamplegalary implements EntryPoint {
 		RootPanel.get("nameField").add(txtPostedBy);
 		RootPanel.get("commentField").add(txaInput);
 		RootPanel.get("sendButton").add(button);
-		RootPanel.get("message").add(label);
+		RootPanel.get("busyIcon").add(busyStaus);
 		
 		this.initializeWindows();
 		this.initializeNStyledLabels();
-		this.addHandlerMethod();
+		this.addLabelHandler();
 
 		RootPanel.get("basicgrid").add(simpleGrid);
 		RootPanel.get("paginggrid").add(pageGrid);
 		RootPanel.get("editablegrid").add(editGrid);
 		RootPanel.get("groupinggrid").add(groupingGreed);
+		RootPanel.get("filtergrid").add(filterGrid);
 
 		RootPanel.get("basictree").add(basicTree);
 		RootPanel.get("contextmenutree").add(contextMenuTree);
@@ -94,20 +104,30 @@ public class Gxtexamplegalary implements EntryPoint {
 		RootPanel.get("editortreegrid").add(editorTreeGrid);
 		RootPanel.get("roweditortreegrid").add(rowEditorTreeGrid);
 		RootPanel.get("rownumbertreegrid").add(rowNumberTreeGrid);
+		
+		RootPanel.get("basicChart").add(basicChart);
+		RootPanel.get("xTemplate").add(listViewXTemplate);
+		RootPanel.get("dragDrop").add(basicDnD);
 
 		RootPanel.get("notwrittentutorial3").add(tutorialNotWritten3);
 		RootPanel.get("notwrittentutorial4").add(tutorialNotWritten4);
 
 		RootPanel.get("commentList").add(showComment);
-		
+		RootPanel.get("dvFeedback").add(feedBack);
+		RootPanel.get("subscribeUser").add(subscribeUser);
 
 	}
 
-	private void initializeNStyledLabels() {
+	private void initializeNStyledLabels() 
+	{
+		feedBack = new Label();
+		subscribeUser = new Label("Subscribe");
+		
 		simpleGrid = new Label();
 		editGrid = new Label();
 		pageGrid = new Label();
 		groupingGreed = new Label();
+		filterGrid = new Label();
 
 		basicTree = new Label();
 		contextMenuTree = new Label();
@@ -118,15 +138,22 @@ public class Gxtexamplegalary implements EntryPoint {
 		rowEditorTreeGrid = new Label();
 		rowNumberTreeGrid = new Label();
 		
+		basicChart = new Label();
+		listViewXTemplate = new Label();
+		basicDnD = new Label();
+		
 		showComment = new Label("View Comments");
 
 		tutorialNotWritten3 = new Label("Tutorial");
 		tutorialNotWritten4 = new Label("Tutorial");
 
+		feedBack.setStylePrimaryName("feedback_bar");
+		
 		simpleGrid.setStylePrimaryName("label_basic_grid");
 		editGrid.setStylePrimaryName("label_edit_grid");
 		pageGrid.setStylePrimaryName("label_paging_grid");
 		groupingGreed.setStylePrimaryName("label_grouping_grid");
+		filterGrid.setStylePrimaryName("label_filter_grid");
 
 		basicTree.setStylePrimaryName("label_basic_tree");
 		contextMenuTree.setStylePrimaryName("label_contextmenu_tree");
@@ -137,10 +164,15 @@ public class Gxtexamplegalary implements EntryPoint {
 		rowEditorTreeGrid.setStylePrimaryName("label_roweditor_treegrid");
 		rowNumberTreeGrid.setStylePrimaryName("label_rownnumber_treegrid");
 
+		basicChart.setStylePrimaryName("label_simple_chart");
+		listViewXTemplate.setStylePrimaryName("label_listview_xtemplate");
+		basicDnD.setStylePrimaryName("label_basic_dnd");
+		
 		tutorialNotWritten3.setStylePrimaryName("label_tutorial_notwritten");
 		tutorialNotWritten4.setStylePrimaryName("label_tutorial_notwritten");
 		
 		showComment.setStylePrimaryName("label_veiw_comment");
+		subscribeUser.setStylePrimaryName("label_veiw_comment");
 	}
 
 	private void initializeWindows() {
@@ -153,127 +185,63 @@ public class Gxtexamplegalary implements EntryPoint {
 				"Tutorial about this feature is coming very soon");
 		tutorialNotWrittenWn.add(displayText);
 
-		basicGridWn = this.createSimpleGridWindow();
-		basicTreeWn = this.createBasicTreeWindow();
-		editableGridWn = this.createEditableGridWindow();
-		groupingGreedWn = this.createGroupingGridWindow();
-		pageGridWn = this.createPagingGridWindow();
+		CommentForm commentForm = new CommentForm();
+		feedBackWn = this.getWindow("Give Your Feedback",210,530,commentForm);
+		commentForm.setWindow(feedBackWn);
+		
+		UserSubscriptionForm userSubsForm = new UserSubscriptionForm();
+		subscribeUserWn = this.getWindow("Subscribe to be updated with comments",180,430,userSubsForm);
+		userSubsForm.setWindow(subscribeUserWn);
+		
+		basicGridWn = this.getWindow("Basic Grid Example",350,730,new GxtGridExample());
+		basicTreeWn = this.getWindow("Basic Tree Example",350,720,new GxtBasicTree());
+		editableGridWn = this.getWindow("Editable Grid Example",350,730,new GxtEditableGrid());
+		groupingGreedWn = this.getWindow("Grouping Grid Example",470,730,new GxtGridGrouping());
+		pageGridWn = this.getWindow("Pagination Example",350,730,new GxtPagingExample());
 
-		contextMenuTreeWn = this.createContextMenuTreeWindow();
-		filterTreeWn = this.createFilterTreeWindow();
+		contextMenuTreeWn = this.getWindow("Tree With Context Menu Example",350,720,new GxtContextMenuTree());
+		filterTreeWn = this.getWindow("Tree With Filter Functionality Example",350,720,new GxtFilterTree());
 
-		basicTreeGridWn = this.createBasicTreeGridWindow();
-		editorTreeGridWn = this.createEditorTreeGridWindow();
-		rowEditorTreeGridWn = this.createRowEditorTreeGridWindow();
-		rowNumberTreeGridWn = this.createRowNumberTreeGridWindow();
+		basicTreeGridWn = this.getWindow("Basic Tree Grid Example",350,720,new GxtBasicTreeGrid());
+		editorTreeGridWn = this.getWindow("Editor Tree Grid Example",350,720,new GxtEditorTreeGrid());
+		rowEditorTreeGridWn = this.getWindow("Row Editor Tree Grid Example",350,720,new GxtRowEditorTreeGrid());
+		rowNumberTreeGridWn = this.getWindow("Row Number Tree Grid Example",350,720,new GxtRowNumberTreeGrid());
+		filterGridWn = this.getWindow("Filter Grid Example",350,720,new SortingGrid());
+		
+		basicChartWn = this.getWindow("Simple Chart Example",650,550,new SimpleChart());
+		listViewXTemplateWn = this.getWindow("List View with XTemplate",650,550,new ListViewXTemplate());
+		basicDnDWn = this.getWindow("Basic Drag & Drop Example",650,600,new BasicDnD());
 		
 	}
 
-	private void addHandlerMethod() {
-		simpleGrid.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				basicGridWn.show();
-			}
-		});
-		editGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				editableGridWn.show();
-
-			}
-		});
-		pageGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				pageGridWn.show();
-
-			}
-		});
-		groupingGreed.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				groupingGreedWn.show();
-
-			}
-		});
-
-		basicTree.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				basicTreeWn.show();
-
-			}
-		});
-		contextMenuTree.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				contextMenuTreeWn.show();
-
-			}
-		});
-		filterTree.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				filterTreeWn.show();
-
-			}
-		});
-		basicTreeGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				basicTreeGridWn.show();
-
-			}
-		});
-		editorTreeGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				editorTreeGridWn.show();
-
-			}
-		});
-		rowEditorTreeGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				rowEditorTreeGridWn.show();
-
-			}
-		});
-		rowNumberTreeGrid.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				rowNumberTreeGridWn.show();
-
-			}
-		});
-
-		tutorialNotWritten3.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				tutorialNotWrittenWn.show();
-
-			}
-		});
-		tutorialNotWritten4.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				tutorialNotWrittenWn.show();
-
-			}
-		});
+	private void addLabelHandler()
+	{
+		this.addHandlerMethod(feedBack,feedBackWn);
+		this.addHandlerMethod(subscribeUser,subscribeUserWn);
+		
+		this.addHandlerMethod(simpleGrid,basicGridWn);
+		this.addHandlerMethod(pageGrid,pageGridWn);
+		this.addHandlerMethod(editGrid,editableGridWn);
+		this.addHandlerMethod(groupingGreed,groupingGreedWn);
+		this.addHandlerMethod(filterGrid,filterGridWn);
+		
+		this.addHandlerMethod(basicTree,basicTreeWn);
+		this.addHandlerMethod(contextMenuTree,contextMenuTreeWn);
+		this.addHandlerMethod(filterTree,filterTreeWn);
+		
+		
+		this.addHandlerMethod(basicTreeGrid,basicTreeGridWn);
+		this.addHandlerMethod(editorTreeGrid,editorTreeGridWn);
+		this.addHandlerMethod(rowEditorTreeGrid,rowEditorTreeGridWn);
+		this.addHandlerMethod(rowNumberTreeGrid,rowNumberTreeGridWn);
+		
+		this.addHandlerMethod(basicChart,basicChartWn);
+		this.addHandlerMethod(listViewXTemplate,listViewXTemplateWn);
+		this.addHandlerMethod(basicDnD,basicDnDWn);
+		
+		this.addHandlerMethod(tutorialNotWritten3,tutorialNotWrittenWn);
+		
+		
 		showComment.addClickHandler(new ClickHandler() {
 
 			@Override
@@ -284,116 +252,14 @@ public class Gxtexamplegalary implements EntryPoint {
 			}
 		});
 	}
-
-	private Window createSimpleGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Basic Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new SimpleChart());
-		//should change later
-		return win;
-	}
-
-	private Window createEditableGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Editable Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtEditableGrid());
-		return win;
-	}
-
-	private Window createGroupingGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Grouping Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtGridGrouping());
-		return win;
-	}
-
-	private Window createPagingGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Pagination Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtPagingExample());
-		return win;
-	}
-
-	private Window createBasicTreeWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Basic Tree Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtBasicTree());
-		return win;
-	}
-
-	private Window createContextMenuTreeWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Tree With Context Menu Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtContextMenuTree());
-		return win;
-	}
-
-	private Window createFilterTreeWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Tree With Filter Functionality Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtFilterTree());
-		return win;
-	}
-
-	private Window createBasicTreeGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Basic Tree Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtBasicTreeGrid());
-		return win;
-	}
-
-	private Window createEditorTreeGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Editor Tree Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtEditorTreeGrid());
-		return win;
-	}
-
-	private Window createRowEditorTreeGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Row Editor Tree Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtRowEditorTreeGrid());
-		return win;
-	}
-
-	private Window createRowNumberTreeGridWindow() {
-		Window win = new Window();
-		win.setMaximizable(true);
-		win.setHeading("Row Number Tree Grid Example");
-		win.setWidth(720);
-		win.setHeight(350);
-		win.add(new GxtRowNumberTreeGrid());
-		return win;
+	private void addHandlerMethod(Label label, final Window window) 
+	{
+		label.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				window.show();
+			}
+		});
 	}
 
 	private Window createCommentListWindow() {
@@ -401,8 +267,29 @@ public class Gxtexamplegalary implements EntryPoint {
 		win.setMaximizable(true);
 		win.setHeading("Comments");
 		win.setWidth(620);
-		win.setHeight(520);
+		win.setHeight(550);
 		win.add(new CommentList());
+		Button subscribeButton = new Button("Subscribe");
+		subscribeButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				UserSubscriptionForm userSubsForm = new UserSubscriptionForm();
+				subscribeUserWn = getWindow("Subscribe to be updated with comments",180,430,userSubsForm);
+				userSubsForm.setWindow(subscribeUserWn);
+				subscribeUserWn.show();
+			}
+		});
+		win.addButton(subscribeButton);
+		return win;
+	}
+	private Window getWindow(String header, int height, int width, LayoutContainer container) {
+		Window win = new Window();
+		win.setMaximizable(true);
+		win.setHeading(header);
+		win.setWidth(width);
+		win.setHeight(height);
+		win.add(container);
 		return win;
 	}
 	
@@ -417,7 +304,13 @@ public class Gxtexamplegalary implements EntryPoint {
 	Label editorTreeGrid;
 	Label rowEditorTreeGrid;
 	Label rowNumberTreeGrid;
-
+	Label filterGrid;
+	Label basicChart;
+	Label listViewXTemplate;
+	Label basicDnD;
+	Label feedBack;
+	Label subscribeUser;
+	
 	Label showComment;
 	
 	Label tutorialNotWritten3;
@@ -436,4 +329,11 @@ public class Gxtexamplegalary implements EntryPoint {
 	Window rowNumberTreeGridWn;
 	Window commentListWindow;
 	Window tutorialNotWrittenWn;
+	Window filterGridWn;
+	Window basicChartWn;
+	Window listViewXTemplateWn;
+	Window basicDnDWn;
+	Window feedBackWn;
+	Window subscribeUserWn;
+	private Status busyStaus;
 }

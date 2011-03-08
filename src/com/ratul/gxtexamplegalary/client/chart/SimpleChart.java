@@ -12,7 +12,6 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.ui.RootPanel;
 
 public class SimpleChart extends LayoutContainer 
 {
@@ -22,7 +21,7 @@ public class SimpleChart extends LayoutContainer
 	    setLayout(new FlowLayout(10));
 	    
 	    ContentPanel cp = new ContentPanel();  
-	    cp.setHeading("Horizontal Bar chart");  
+	    cp.setHeaderVisible(false);
 	    cp.setFrame(true);  
 	    cp.setSize(500, 600);  
 	    cp.setLayout(new FitLayout());
